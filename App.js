@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {View, StyleSheet} from 'react-native'
 import WeatherSearch from './src/components/weatherSearch'
 import WeatherInfo from './src/components/weatherInfo'
@@ -6,12 +6,17 @@ import axios from 'axios'
 import {BASE_URL, API_KEY} from './src/constant'
 
 const App = () => {
+	const [weatherData, setWeatherData] = useState()
 	const searchWeather = (location) => {
 		axios
 			.get(`${BASE_URL}?q=${location}&appid=${API_KEY}`)
 			.then((response) => {
 				const data = response.data
-				console.log(data)
+				data.visibility /= 1000
+				data.visibility = data.visibility.toFixed(2)
+				data.main.temp -= 273.15
+				data.main.temp = data.main.temp.toFixed(2)
+				setWeatherData(data)
 			})
 			.catch((error) => {
 				console.log(error)
@@ -20,7 +25,7 @@ const App = () => {
 	return (
 		<View style={styles.container}>
 			<WeatherSearch searchWeather={searchWeather} />
-			<WeatherInfo />
+			{weatherData && <WeatherInfo weatherData={weatherData} />}
 		</View>
 	)
 }
